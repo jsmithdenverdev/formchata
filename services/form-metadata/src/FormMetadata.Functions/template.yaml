@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application.
+Resources:
+  FormMetadataApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+  GetForm:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: FormMetadata.Functions::FormMetadata.Functions.GetForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: "/"
+            Method: GET
+            RestApiId: !Ref FormMetadataApi
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+  CreateForm:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: FormMetadata.Functions::FormMetadata.Functions.CreateForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: "/"
+            Method: POST
+            RestApiId: !Ref FormMetadataApi
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+  FormMetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+Outputs:
+  FormMetadataApiURL:
+    Description: API endpoint URL for Prod environment
+    Value: !Sub https://${FormMetadataApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+
