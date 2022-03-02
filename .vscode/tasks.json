@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/form-metadata/test/FormMetadata.Functions.Tests/FormMetadata.Functions.Tests.csproj",
+        "${workspaceFolder}/services/form/test/Form.Functions.Tests/Form.Functions.Tests.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/form-metadata/test/FormMetadata.Functions.Tests/FormMetadata.Functions.Tests.csproj",
+        "${workspaceFolder}/services/form/test/Form.Functions.Tests/Form.Functions.Tests.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -33,7 +33,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/form-metadata/test/FormMetadata.Functions.Tests/FormMetadata.Functions.Tests.csproj"
+        "${workspaceFolder}/services/form/test/Form.Functions.Tests/Form.Functions.Tests.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

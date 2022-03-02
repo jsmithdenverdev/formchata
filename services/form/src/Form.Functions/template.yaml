@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application.
+Globals:
+  Function:
+    Environment:
+      Variables:
+        TABLE_NAME: form
+Resources:
+  FormApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+  CreateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: create-form
+      Handler: Form.Functions::Form.Functions.CreateForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId: !Ref FormApi
+  ReadFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-form
+      Handler: Form.Functions::Form.Functions.ReadForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: GET
+            RestApiId: !Ref FormApi
+  UpdateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: update-form
+      Handler: Form.Functions::Form.Functions.UpdateForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: PUT
+            RestApiId: !Ref FormApi
+  DeleteFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: delete-form
+      Handler: Form.Functions::Form.Functions.DeleteForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: DELETE
+            RestApiId: !Ref FormApi
+  FormTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: form
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+Outputs:
+  FormApiURL:
+    Description: API endpoint URL for Prod environment
+    Value: !Sub https://${FormApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/

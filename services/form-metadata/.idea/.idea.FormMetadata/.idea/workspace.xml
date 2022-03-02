@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="587d742f-bbcf-4ea8-8d76-242e0c6aaf8e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../.vscode/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../.vscode/launch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../.vscode/tasks.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../.vscode/tasks.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FormMetadata.sln" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Formchata Form Metadata Service.postman_collection.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Commands/CreateForm/CreateFormCommand.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Commands/DeleteForm/DeleteFormCommand.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Commands/ICommand.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Commands/UpdateForm/UpdateFormCommand.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/FormMetadata.Application.csproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Interfaces/IFormRepository.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Queries/IQuery.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Application/Queries/ReadForm/ReadFormQuery.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Domain/Entities/Form.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Domain/FormMetadata.Domain.csproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/CreateForm.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/DeleteForm.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/FormMetadata.Functions.csproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/ReadForm.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/Readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/UpdateForm.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/aws-lambda-tools-defaults.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/samconfig.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Functions/template.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Infrastructure/FormMetadata.Infrastructure.csproj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FormMetadata.Infrastructure/Repositories/FormRepository.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/FormMetadata.Functions.Tests/CreateFormTests.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/FormMetadata.Functions.Tests/FormMetadata.Functions.Tests.csproj" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e12d73dec478489fb0c32b8fdeee253c16ec00/b4/8e13a166/AmazonServiceClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c9ad75215ef745621d1bd568d600c4e67d5b5a4872c0fb6c65503ae25aeb/JsonNamingPolicy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86be039150184c9c83f23b717f4ce55c98000/46/45f4a38c/AmazonDynamoDBClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e12d73dec478489fb0c32b8fdeee253c16ec00/5c/b4adb6a1/ClientConfig.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86be039150184c9c83f23b717f4ce55c98000/b1/be7294d0/AmazonDynamoDBConfig.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="25nFbcMe145v1OfZcK7wGIaAoLy" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="587d742f-bbcf-4ea8-8d76-242e0c6aaf8e" name="Changes" comment="" />
+      <created>1646155020442</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1646155020442</updated>
+      <workItem from="1646155027773" duration="23000" />
+      <workItem from="1646155129929" duration="22857000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>
