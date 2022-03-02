@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using FormMetadata.Application.Interfaces;
 using FormMetadata.Domain.Entities;
 
@@ -8,47 +7,35 @@ namespace FormMetadata.Infrastructure.Repositories;
 
 public class FormRepository : IFormRepository
 {
-    private readonly Table _table;
+    private readonly DynamoDBContext _context;
 
-    public FormRepository(IAmazonDynamoDB client, string tableName)
+    public FormRepository(IAmazonDynamoDB client)
     {
-        _table = Table.LoadTable(client, tableName);
+        // TODO: Register context?
+        _context = new DynamoDBContext(client);
     }
 
     public async Task Create(Form form)
     {
-        var sectionEntities = new DynamoDBList();
-        var formEntity = new Document();
+        await _context.SaveAsync(form);
+    }
 
-        foreach (var section in form.Sections)
-        {
-            var controlEntities = new DynamoDBList();
-            var sectionEntity = new Document();
+    public async Task<Form> Read(string id)
+    {
+        return await _context.LoadAsync<Form>(id);
+    }
 
-            foreach (var control in section.Controls)
-            {
-                var controlEntity = new Document();
+    public async Task Delete(string id)
+    {
+        await _context.DeleteAsync<Form>(id);
+    }
 
-                controlEntity["title"] = control.Title;
-                controlEntity["description"] = control.Description;
-                controlEntity["type"] = control.Type;
-                controlEntity["required"] = new DynamoDBBool(control.Required);
+    public async Task<string> Update(string id, Form form)
+    {
+        form.Id = id;
 
-                controlEntities.Add(controlEntity);
-            }
+        await _context.SaveAsync(form);
 
-            sectionEntity["title"] = section.Title;
-            sectionEntity["description"] = section.Description;
-            sectionEntity["controls"] = controlEntities;
-
-            sectionEntities.Add(sectionEntity);
-        }
-
-        formEntity["id"] = form.Id;
-        formEntity["title"] = form.Title;
-        formEntity["description"] = form.Description;
-        formEntity["sections"] = sectionEntities;
-
-        await _table.PutItemAsync(formEntity);
+        return id;
     }
 }

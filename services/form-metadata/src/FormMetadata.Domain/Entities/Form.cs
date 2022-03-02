@@ -2,7 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace FormMetadata.Domain.Entities;
 
-[DynamoDBTable("FormMetadata", LowerCamelCaseProperties = true)]
+[DynamoDBTable("form-metadata", LowerCamelCaseProperties = true)]
 public class Form
 {
     [DynamoDBHashKey] public string Id { get; set; }

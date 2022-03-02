@@ -1,0 +1,116 @@
+{
+	"info": {
+		"_postman_id": "56b9207c-f724-4731-b145-e3fa73617de0",
+		"name": "Formchata Form Metadata Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Form",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form\": {\n        \"title\": \"Sample Form\",\n        \"description\": \"A sample form\",\n        \"sections\": [\n            {\n                \"title\": \"Sample section\",\n                \"description\": \"A sample section\",\n                \"controls\": [\n                    {\n                        \"title\": \"Sample Control\",\n                        \"description\": \"A sample control\",\n                        \"required\": false,\n                        \"type\": 0\n                    }\n                ]\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Form",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/{{form_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{form_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Form",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form\": {\n        \"title\": \"Sample Form\",\n        \"description\": \"A sample form\",\n        \"sections\": [\n            {\n                \"title\": \"Sample section\",\n                \"description\": \"A sample section\",\n                \"controls\": [\n                    {\n                        \"title\": \"Sample Control\",\n                        \"description\": \"A sample control\",\n                        \"required\": false,\n                        \"type\": 0\n                    }\n                ]\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/{{form_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{form_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Form",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/{{form_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{form_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

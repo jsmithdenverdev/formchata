@@ -1,11 +1,11 @@
-using System.Text.Json;
 using System.Net;
+using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using FormMetadata.Application.Commands;
-using FormMetadata.Application.Commands.CreateForm;
+using FormMetadata.Application.Commands.UpdateForm;
 using FormMetadata.Application.Interfaces;
 using FormMetadata.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,22 +13,22 @@ using Microsoft.Extensions.Logging;
 
 namespace FormMetadata.Functions;
 
-public class CreateForm
+public class UpdateForm
 {
-    private readonly ILogger<CreateForm> _logger;
-    private readonly ICommandHandler<CreateFormCommand, string> _commandHandler;
+    private readonly ILogger<ReadForm> _logger;
+    private readonly ICommandHandler<UpdateFormCommand, string> _commandHandler;
 
-    public CreateForm()
+    public UpdateForm()
     {
-        var collection = new ServiceCollection();
+        var services = new ServiceCollection();
 
-        ConfigureServices(collection);
+        ConfigureServices(services);
 
-        var provider = collection.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
-        _logger = provider.GetService<ILogger<CreateForm>>() ??
+        _logger = provider.GetService<ILogger<ReadForm>>() ??
                   throw new InvalidOperationException();
-        _commandHandler = provider.GetService<ICommandHandler<CreateFormCommand, string>>() ??
+        _commandHandler = provider.GetService<ICommandHandler<UpdateFormCommand, string>>() ??
                           throw new InvalidOperationException();
     }
 
@@ -37,7 +37,7 @@ public class CreateForm
         services.AddLogging(b => b.AddConsole());
         services.AddAWSService<IAmazonDynamoDB>();
         services.AddSingleton<IFormRepository, FormRepository>();
-        services.AddTransient<ICommandHandler<CreateFormCommand, string>, CreateFormCommandHandler>();
+        services.AddTransient<ICommandHandler<UpdateFormCommand, string>, UpdateFormCommandHandler>();
     }
 
     [LambdaSerializer(typeof(DefaultLambdaJsonSerializer))]
@@ -45,14 +45,28 @@ public class CreateForm
     {
         try
         {
-            // Deserialize the request body into a CreateFormCommand
-            var command = JsonSerializer.Deserialize<CreateFormCommand>(
-                              request.Body,
-                              new JsonSerializerOptions {PropertyNameCaseInsensitive = true}) ??
-                          throw new Exception("No form provided.");
+            var id = request.PathParameters["id"] ??
+                     throw new Exception("No id provided.");
 
-            // Pass the CreateFormCommand to its handler and return the created forms id
+            var command = JsonSerializer.Deserialize<UpdateFormCommand>(request.Body, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            }) ?? throw new Exception("No form provided.");
+
+            command.Id = id;
+
+            // TODO: The handler is just returning the supplied ID. There should be a check to see if this record exists
+            // before we attempt to delete it.
             var result = await _commandHandler.Handle(command);
+
+            if (result == null)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int) HttpStatusCode.NotFound,
+                    Headers = new Dictionary<string, string> {{"Content-Type", "text/plain"}}
+                };
+            }
 
             return new APIGatewayProxyResponse
             {

@@ -7,7 +7,7 @@ public interface ICommand
 public interface ICommandHandler<in TCommand, TResult>
     where TCommand : ICommand
 {
-    public Task<TResult> Handle(TCommand command);
+    public Task<TResult?> Handle(TCommand command);
 }
 
 public interface ICommandHandler<in TCommand>

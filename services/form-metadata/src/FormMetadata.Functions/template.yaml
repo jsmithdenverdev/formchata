@@ -1,37 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application.
+Globals:
+  Function:
+    Environment:
+      Variables:
+        TABLE_NAME: form-metadata
 Resources:
   FormMetadataApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-  GetForm:
+  CreateFormFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: FormMetadata.Functions::FormMetadata.Functions.GetForm::Handle
-      Runtime: dotnet6
-      CodeUri: ''
-      MemorySize: 256
-      Timeout: 30
-      Role:
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            Path: "/"
-            Method: GET
-            RestApiId: !Ref FormMetadataApi
-      Environment:
-        Variables:
-          TABLE_NAME: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
-  CreateForm:
-    Type: AWS::Serverless::Function
-    Properties:
+      FunctionName: create-form
       Handler: FormMetadata.Functions::FormMetadata.Functions.CreateForm::Handle
       Runtime: dotnet6
       CodeUri: ''
@@ -41,20 +24,81 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+            TableName: form-metadata
       Events:
         Get:
           Type: Api
           Properties:
-            Path: "/"
+            Path: /
             Method: POST
             RestApiId: !Ref FormMetadataApi
-      Environment:
-        Variables:
-          TABLE_NAME: !Select [ 1, !Split [ "/", !GetAtt FormMetadataTable.Arn ] ]
+  ReadFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: get-form
+      Handler: FormMetadata.Functions::FormMetadata.Functions.ReadForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form-metadata
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: GET
+            RestApiId: !Ref FormMetadataApi
+  UpdateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: update-form
+      Handler: FormMetadata.Functions::FormMetadata.Functions.UpdateForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form-metadata
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: PUT
+            RestApiId: !Ref FormMetadataApi
+  DeleteFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: delete-form
+      Handler: FormMetadata.Functions::FormMetadata.Functions.DeleteForm::Handle
+      Runtime: dotnet6
+      CodeUri: ''
+      MemorySize: 256
+      Timeout: 30
+      Role:
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: form-metadata
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: DELETE
+            RestApiId: !Ref FormMetadataApi
   FormMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: form-metadata
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -68,4 +112,3 @@ Outputs:
   FormMetadataApiURL:
     Description: API endpoint URL for Prod environment
     Value: !Sub https://${FormMetadataApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
-
