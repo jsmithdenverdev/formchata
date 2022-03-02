@@ -13,6 +13,7 @@ public class FormMeta
 
 public class FormSection
 {
+    public string Id { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public List<FormControl> Controls { get; set; }
@@ -20,6 +21,7 @@ public class FormSection
 
 public class FormControl
 {
+    public string Id { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public int Type { get; set; }

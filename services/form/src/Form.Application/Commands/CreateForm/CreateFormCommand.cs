@@ -21,15 +21,27 @@ public class CreateFormCommandHandler : ICommandHandler<CreateFormCommand, strin
         _formRepository = formRepository;
     }
 
-    public async Task<string> Handle(CreateFormCommand command)
+    public async Task<string?> Handle(CreateFormCommand command)
     {
         _logger.LogInformation($"Handling command {JsonSerializer.Serialize(command)}");
 
-        var id = Guid.NewGuid().ToString();
-        command.Form.Id = id;
+        var formId = Guid.NewGuid().ToString();
+        command.Form.Id = formId;
+
+        foreach (var section in command.Form.Sections)
+        {
+            var sectionId = Guid.NewGuid().ToString();
+            section.Id = sectionId;
+
+            foreach (var control in section.Controls)
+            {
+                var controlId = Guid.NewGuid().ToString();
+                control.Id = controlId;
+            }
+        }
 
         await _formRepository.Create(command.Form);
 
-        return id;
+        return formId;
     }
 }
