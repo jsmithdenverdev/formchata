@@ -1,13 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Response Microservice
-
 Globals:
     Function:
         Timeout: 3
         Environment:
             Variables:
                 TABLE_NAME: form-response
+Parameters:
+    FormchataUserPoolArn:
+        Type: String
+        Description: 'Arn for the Formchata Cognito User Pool'
 Resources:
     CreateFormResponseFunction:
         Type: AWS::Serverless::Function

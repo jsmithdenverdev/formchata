@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Formchata
+
+Resources:
+  FormchataUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: FormchataUserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  FormchataUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FormchataUserPool
+      ClientName: FormchataUserPoolClient
+      GenerateSecret: false
+  FormMicroservice:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./services/form/src/Form.Functions/template.yaml
+      Parameters:
+        FormchataUserPoolArn: !GetAtt FormchataUserPool.Arn
+  ResponseMicroservice:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./services/response/template.yaml
+      Parameters:
+        FormchataUserPoolArn: !GetAtt FormchataUserPool.Arn
