@@ -1,73 +1,109 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Response Microservice
 
 Globals:
-  Function:
-    Timeout: 3
-
+    Function:
+        Timeout: 3
+        Environment:
+            Variables:
+                TABLE_NAME: form-response
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: .
-      Handler: src/handlers/hello.lambdaHandler
-      Runtime: nodejs14.x
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - src/handlers/hello.ts
-  GoodbyeWorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: .
-      Handler: src/handlers/goodbye.lambdaHandler
-      Runtime: nodejs14.x
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /goodbye
-            Method: get
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - src/handlers/goodbye.ts
-
+    CreateFormResponseFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: create-response
+            CodeUri: .
+            Handler: src/handlers/create.lambdaHandler
+            Runtime: nodejs14.x
+            Architectures:
+                - x86_64
+            Events:
+                Default:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: post
+            Policies:
+                - AWSLambdaBasicExecutionRole
+                - DynamoDBCrudPolicy:
+                      TableName: form-response
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: 'es2020'
+                Sourcemap: true
+                EntryPoints:
+                    - src/handlers/create.ts
+    ReadFormResponseFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: read-response
+            CodeUri: .
+            Handler: src/handlers/read.lambdaHandler
+            Runtime: nodejs14.x
+            Architectures:
+                - x86_64
+            Events:
+                Default:
+                    Type: Api
+                    Properties:
+                        Path: /{id}
+                        Method: get
+            Policies:
+                - AWSLambdaBasicExecutionRole
+                - DynamoDBCrudPolicy:
+                      TableName: form-response
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: 'es2020'
+                Sourcemap: true
+                EntryPoints:
+                    - src/handlers/read.ts
+    DeleteFormResponseFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: delete-response
+            CodeUri: .
+            Handler: src/handlers/delete.lambdaHandler
+            Runtime: nodejs14.x
+            Architectures:
+                - x86_64
+            Events:
+                Default:
+                    Type: Api
+                    Properties:
+                        Path: /{id}
+                        Method: delete
+            Policies:
+                - AWSLambdaBasicExecutionRole
+                - DynamoDBCrudPolicy:
+                      TableName: form-response
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: 'es2020'
+                Sourcemap: true
+                EntryPoints:
+                    - src/handlers/delete.ts
+    FormTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: form-response
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+            ProvisionedThroughput:
+                ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
 Outputs:
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
-  GoodbyeWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Goodbye World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/goodbye/"
-  GoodbyeWorldFunction:
-    Description: "Goodbye World Lambda Function ARN"
-    Value: !GetAtt GoodbyeWorldFunction.Arn
-  GoodbyeWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Goodbye World function"
-    Value: !GetAtt GoodbyeWorldFunctionRole.Arn
+    ResponseApiURL:
+        Description: API endpoint URL for Prod environment
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
