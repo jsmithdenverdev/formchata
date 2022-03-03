@@ -6,6 +6,7 @@ export function createLogger(level: string = 'info', prefix: string) {
     return createWinstonLogger({
         level: level,
         format: combine(
+            timestamp(),
             printf(({ level, message, timestamp, ...meadata }) => {
                 let msg = `${timestamp} [${level}] ${prefix} : ${message}`;
 
@@ -15,7 +16,6 @@ export function createLogger(level: string = 'info', prefix: string) {
 
                 return msg;
             }),
-            timestamp(),
         ),
         transports: [new transports.Console()],
     });
