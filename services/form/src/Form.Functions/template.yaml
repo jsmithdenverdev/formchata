@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application.
 Globals:
@@ -6,18 +6,28 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: form
+Parameters:
+  FormchataUserPoolArn:
+    Type: String
+    Description: "Arn for the Formchata Cognito User Pool"
 Resources:
   FormApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: FormchataCognitoAuthorizer
+        Authorizers:
+          FormchataCognitoAuthorizer:
+            UserPoolArn: !Ref FormchataUserPoolArn
   CreateFormFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: create-form
       Handler: Form.Functions::Form.Functions.CreateForm::Handle
       Runtime: dotnet6
-      CodeUri: ''
+      CodeUri: ""
       MemorySize: 256
       Timeout: 30
       Role:
@@ -38,7 +48,7 @@ Resources:
       FunctionName: get-form
       Handler: Form.Functions::Form.Functions.ReadForm::Handle
       Runtime: dotnet6
-      CodeUri: ''
+      CodeUri: ""
       MemorySize: 256
       Timeout: 30
       Role:
@@ -59,7 +69,7 @@ Resources:
       FunctionName: update-form
       Handler: Form.Functions::Form.Functions.UpdateForm::Handle
       Runtime: dotnet6
-      CodeUri: ''
+      CodeUri: ""
       MemorySize: 256
       Timeout: 30
       Role:
@@ -80,7 +90,7 @@ Resources:
       FunctionName: delete-form
       Handler: Form.Functions::Form.Functions.DeleteForm::Handle
       Runtime: dotnet6
-      CodeUri: ''
+      CodeUri: ""
       MemorySize: 256
       Timeout: 30
       Role:

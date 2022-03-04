@@ -1,0 +1,8 @@
+#! /bin/bash
+
+aws cognito-idp initiate-auth \
+  --region $AWS_DEFAULT_REGION \
+  --auth-flow USER_PASSWORD_AUTH \
+  --client-id $FORMCHATA_CLIENT_ID \
+  --auth-parameters USERNAME=$1,PASSWORD=$2 \
+  | jq -r '.AuthenticationResult.IdToken'

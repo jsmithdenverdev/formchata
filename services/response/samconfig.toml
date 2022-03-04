@@ -2,11 +2,11 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "formchata-response"
+stack_name = "formchata-response-microservice"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ox5lpxf7jfcf"
-s3_prefix = "formchata-response"
+s3_prefix = "formchata-response-microservice"
 region = "us-east-1"
 confirm_changeset = true
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
 disable_rollback = true
 image_repositories = []
