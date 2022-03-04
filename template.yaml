@@ -16,12 +16,30 @@ Resources:
         - AttributeDataType: String
           Name: email
           Required: false
+  FormchataUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref FormchataUserPool
+      Domain: "formchata"
   FormchataUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       UserPoolId: !Ref FormchataUserPool
       ClientName: FormchataUserPoolClient
       GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        # TODO: This should likely only be allowed in lower test environments
+        - ALLOW_USER_PASSWORD_AUTH
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - openid
+        - email
+      CallbackURLs:
+        - http://localhost:3006/callback/
+      SupportedIdentityProviders:
+        - COGNITO
   FormMicroservice:
     Type: AWS::Serverless::Application
     Properties:
