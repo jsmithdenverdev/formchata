@@ -38,13 +38,15 @@ Resources:
             - Sid: FormTableCreate
               Effect: Allow
               Action:
+                - dynamodb:DescribeTable
                 - dynamodb:PutItem
+                - dynamodb:UpdateItem
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
-              Condition:
-                ForAllValues:StringEquals:
-                  dynamodb:LeadingKeys:
-                    - "${cognito-identity.amazonaws.com:sub}"
+              # Condition:
+              #   ForAllValues:StringEquals:
+              #     dynamodb:LeadingKeys:
+              #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
         Create:
           Type: Api
@@ -69,6 +71,7 @@ Resources:
             - Sid: FormTableRead
               Effect: Allow
               Action:
+                - dynamodb:DescribeTable
                 - dynamodb:Query
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
@@ -96,6 +99,7 @@ Resources:
             - Sid: FormTableUpdate
               Effect: Allow
               Action:
+                - dynamodb:DescribeTable
                 - dynamodb:PutItem
                 - dynamodb:UpdateItem
               Resource:
@@ -128,6 +132,7 @@ Resources:
             - Sid: FormTableModify
               Effect: Allow
               Action:
+                - dynamodb:DescribeTable
                 - dynamodb:DeleteItem
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
