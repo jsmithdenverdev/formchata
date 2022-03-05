@@ -1,5 +1,6 @@
 using System.Net;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
@@ -34,8 +35,11 @@ public class DeleteForm
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(b => b.AddConsole());
-        services.AddAWSService<IAmazonDynamoDB>();
-        services.AddSingleton<IFormRepository, FormRepository>();
+
+        var dynamoDbClient = new AmazonDynamoDBClient();
+        var dynamoDbContext = new DynamoDBContext(dynamoDbClient);
+
+        services.AddSingleton<IDynamoDBContext>(dynamoDbContext);
         services.AddTransient<ICommandHandler<DeleteFormCommand, string>, DeleteFormCommandHandler>();
     }
 
@@ -47,9 +51,15 @@ public class DeleteForm
             var id = request.PathParameters["id"] ??
                      throw new Exception("No id provided.");
 
+            var command = new DeleteFormCommand
+            {
+                OwnerId = context.Identity.IdentityId,
+                Id = id
+            };
+
             // TODO: The handler is just returning the supplied ID. There should be a check to see if this record exists
             // before we attempt to delete it.
-            var result = await _commandHandler.Handle(new DeleteFormCommand {Id = id});
+            var result = await _commandHandler.Handle(command);
 
             if (result == null)
             {

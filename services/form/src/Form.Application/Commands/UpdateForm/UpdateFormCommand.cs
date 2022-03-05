@@ -9,6 +9,7 @@ namespace Form.Application.Commands.UpdateForm;
 
 public class UpdateFormCommand : ICommand
 {
+    public string OwnerId { get; set; }
     public string Id { get; set; }
     public FormMeta Form { get; set; }
 }
@@ -28,7 +29,7 @@ public class UpdateFormCommandHandler : ICommandHandler<UpdateFormCommand, strin
     {
         _logger.LogInformation($"Handling command {JsonSerializer.Serialize(command)}");
 
-        var formEntity = await _context.LoadAsync<FormMeta>(command.Id);
+        var formEntity = await _context.LoadAsync<FormMeta>(command.Id, command.OwnerId);
 
         if (formEntity == null)
         {

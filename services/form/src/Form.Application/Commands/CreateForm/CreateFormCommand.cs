@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Amazon.DynamoDBv2.DataModel;
 using Form.Application.Interfaces;
 using Form.Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,12 @@ public class CreateFormCommand : ICommand
 public class CreateFormCommandHandler : ICommandHandler<CreateFormCommand, string>
 {
     private readonly ILogger<CreateFormCommandHandler> _logger;
-    private readonly IFormRepository _formRepository;
+    private readonly IDynamoDBContext _context;
 
-    public CreateFormCommandHandler(ILogger<CreateFormCommandHandler> logger, IFormRepository formRepository)
+    public CreateFormCommandHandler(ILogger<CreateFormCommandHandler> logger, IDynamoDBContext context)
     {
         _logger = logger;
-        _formRepository = formRepository;
+        _context = context;
     }
 
     public async Task<string?> Handle(CreateFormCommand command)
@@ -40,7 +41,7 @@ public class CreateFormCommandHandler : ICommandHandler<CreateFormCommand, strin
             }
         }
 
-        await _formRepository.Create(command.Form);
+        await _context.SaveAsync(command.Form);
 
         return formId;
     }

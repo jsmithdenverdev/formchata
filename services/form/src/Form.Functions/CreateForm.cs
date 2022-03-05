@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Net;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
@@ -35,8 +36,11 @@ public class CreateForm
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(b => b.AddConsole());
-        services.AddAWSService<IAmazonDynamoDB>();
-        services.AddSingleton<IFormRepository, FormRepository>();
+
+        var dynamoDbClient = new AmazonDynamoDBClient();
+        var dynamoDbContext = new DynamoDBContext(dynamoDbClient);
+
+        services.AddSingleton<IDynamoDBContext>(dynamoDbContext);
         services.AddTransient<ICommandHandler<CreateFormCommand, string>, CreateFormCommandHandler>();
     }
 
@@ -50,6 +54,8 @@ public class CreateForm
                               request.Body,
                               new JsonSerializerOptions {PropertyNameCaseInsensitive = true}) ??
                           throw new Exception("No form provided.");
+
+            command.Form.OwnerId = context.Identity.IdentityId;
 
             // Pass the CreateFormCommand to its handler and return the created forms id
             var result = await _commandHandler.Handle(command);

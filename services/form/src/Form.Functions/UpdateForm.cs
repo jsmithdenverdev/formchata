@@ -58,6 +58,7 @@ public class UpdateForm
             }) ?? throw new Exception("No form provided.");
 
             command.Id = id;
+            command.OwnerId = context.Identity.IdentityId;
 
             // TODO: The handler is just returning the supplied ID. There should be a check to see if this record exists
             // before we attempt to delete it.
