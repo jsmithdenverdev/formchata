@@ -50,11 +50,12 @@ public class DeleteForm
         {
             var id = request.PathParameters["id"] ??
                      throw new Exception("No id provided.");
+            var ownerId = request.RequestContext.Authorizer.Claims["cognito:username"];
 
             var command = new DeleteFormCommand
             {
-                OwnerId = context.Identity.IdentityId,
-                Id = id
+                Id = id,
+                OwnerId = ownerId,
             };
 
             // TODO: The handler is just returning the supplied ID. There should be a check to see if this record exists

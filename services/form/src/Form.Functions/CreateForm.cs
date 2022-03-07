@@ -7,8 +7,6 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Form.Application.Commands;
 using Form.Application.Commands.CreateForm;
-using Form.Application.Interfaces;
-using Form.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -55,7 +53,8 @@ public class CreateForm
                               new JsonSerializerOptions {PropertyNameCaseInsensitive = true}) ??
                           throw new Exception("No form provided.");
 
-            command.Form.OwnerId = context.Identity.IdentityId;
+            var ownerId = request.RequestContext.Authorizer.Claims["cognito:username"];
+            command.Form.OwnerId = ownerId;
 
             // Pass the CreateFormCommand to its handler and return the created forms id
             var result = await _commandHandler.Handle(command);
