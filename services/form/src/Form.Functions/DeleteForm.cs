@@ -5,8 +5,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Form.Application.Commands;
 using Form.Application.Commands.DeleteForm;
-using Form.Application.Interfaces;
-using Form.Infrastructure.Repositories;
+using Form.Application.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -34,8 +33,8 @@ public class DeleteForm
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(b => b.AddConsole());
+
         services.AddAWSService<IAmazonDynamoDB>();
-        services.AddSingleton<IFormRepository, FormRepository>();
         services.AddTransient<ICommandHandler<DeleteFormCommand, string>, DeleteFormCommandHandler>();
     }
 
@@ -47,18 +46,14 @@ public class DeleteForm
             var id = request.PathParameters["id"] ??
                      throw new Exception("No id provided.");
 
-            // TODO: The handler is just returning the supplied ID. There should be a check to see if this record exists
-            // before we attempt to delete it.
-            var result = await _commandHandler.Handle(new DeleteFormCommand {Id = id});
+            var ownerId = request.RequestContext.Authorizer.Claims["cognito:username"] ??
+                          throw new Exception("No ownerId provided.");
 
-            if (result == null)
+            var result = await _commandHandler.Handle(new DeleteFormCommand
             {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = (int) HttpStatusCode.NotFound,
-                    Headers = new Dictionary<string, string> {{"Content-Type", "text/plain"}}
-                };
-            }
+                Id = id,
+                OwnerId = ownerId,
+            });
 
             return new APIGatewayProxyResponse
             {
@@ -67,15 +62,25 @@ public class DeleteForm
                 Headers = new Dictionary<string, string> {{"Content-Type", "text/plain"}}
             };
         }
+        catch (FormMetaNotFoundException e)
+        {
+            _logger.LogError(e.Message);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int) HttpStatusCode.NotFound,
+                Body = HttpStatusCode.NotFound.ToString(),
+                Headers = new Dictionary<string, string> {{"Content-Type", "text/plain"}}
+            };
+        }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
 
-            // TODO: handled exceptions
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int) HttpStatusCode.InternalServerError,
-                Body = e.Message,
+                Body = HttpStatusCode.InternalServerError.ToString(),
                 Headers = new Dictionary<string, string> {{"Content-Type", "text/plain"}}
             };
         }

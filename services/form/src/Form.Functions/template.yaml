@@ -33,10 +33,21 @@ Resources:
       Role:
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: form
+        - Version: "2012-10-17"
+          Statement:
+            Effect: Allow
+            Action:
+              - dynamodb:DescribeTable
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+            Resource:
+              - arn:aws:dynamodb:*:*:table/form
+            # Condition:
+            #   ForAllValues:StringEquals:
+            #     dynamodb:LeadingKeys:
+            #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
-        Get:
+        Create:
           Type: Api
           Properties:
             Path: /
@@ -54,10 +65,20 @@ Resources:
       Role:
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: form
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:DescribeTable
+              Resource:
+                - arn:aws:dynamodb:*:*:table/form
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - arn:aws:dynamodb:*:*:table/form/index/FormIdIndex
       Events:
-        Get:
+        Read:
           Type: Api
           Properties:
             Path: /{id}
@@ -75,10 +96,21 @@ Resources:
       Role:
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: form
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:DescribeTable
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource:
+                - arn:aws:dynamodb:*:*:table/form
+              # Condition:
+              #   ForAllValues:StringEquals:
+              #     dynamodb:LeadingKeys:
+              #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
-        Get:
+        Update:
           Type: Api
           Properties:
             Path: /{id}
@@ -96,10 +128,20 @@ Resources:
       Role:
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: form
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:DescribeTable
+                - dynamodb:DeleteItem
+              Resource:
+                - arn:aws:dynamodb:*:*:table/form
+              # Condition:
+              #   ForAllValues:StringEquals:
+              #     dynamodb:LeadingKeys:
+              #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
-        Get:
+        Delete:
           Type: Api
           Properties:
             Path: /{id}
@@ -110,14 +152,30 @@ Resources:
     Properties:
       TableName: form
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: ownerId
+          AttributeType: S
+        - AttributeName: formId
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: ownerId
           KeyType: HASH
+        - AttributeName: formId
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+      GlobalSecondaryIndexes:
+        - IndexName: "FormIdIndex"
+          KeySchema:
+            - AttributeName: formId
+              KeyType: HASH
+          Projection:
+            # TODO: It may not be worth projecting all attributes into the secondary index. Form metadata can become
+            # quite large. Perhaps it makes more sense to have a separate mapping table?
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
 Outputs:
   FormApiURL:
     Description: API endpoint URL for Prod environment

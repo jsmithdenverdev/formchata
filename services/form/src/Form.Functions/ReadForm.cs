@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
@@ -36,8 +37,11 @@ public class ReadForm
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(b => b.AddConsole());
-        services.AddAWSService<IAmazonDynamoDB>();
-        services.AddSingleton<IFormRepository, FormRepository>();
+
+        var dynamoDbClient = new AmazonDynamoDBClient();
+        var dynamoDbContext = new DynamoDBContext(dynamoDbClient);
+
+        services.AddSingleton<IDynamoDBContext>(dynamoDbContext);
         services.AddTransient<IQueryHandler<ReadFormQuery, FormMeta>, ReadFormQueryHandler>();
     }
 

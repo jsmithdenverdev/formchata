@@ -1,13 +1,12 @@
 using System.Text.Json;
 using System.Net;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Form.Application.Commands;
 using Form.Application.Commands.CreateForm;
-using Form.Application.Interfaces;
-using Form.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -35,8 +34,11 @@ public class CreateForm
     public static void ConfigureServices(IServiceCollection services)
     {
         services.AddLogging(b => b.AddConsole());
-        services.AddAWSService<IAmazonDynamoDB>();
-        services.AddSingleton<IFormRepository, FormRepository>();
+
+        var dynamoDbClient = new AmazonDynamoDBClient();
+        var dynamoDbContext = new DynamoDBContext(dynamoDbClient);
+
+        services.AddSingleton<IDynamoDBContext>(dynamoDbContext);
         services.AddTransient<ICommandHandler<CreateFormCommand, string>, CreateFormCommandHandler>();
     }
 
@@ -50,6 +52,9 @@ public class CreateForm
                               request.Body,
                               new JsonSerializerOptions {PropertyNameCaseInsensitive = true}) ??
                           throw new Exception("No form provided.");
+
+            var ownerId = request.RequestContext.Authorizer.Claims["cognito:username"];
+            command.Form.OwnerId = ownerId;
 
             // Pass the CreateFormCommand to its handler and return the created forms id
             var result = await _commandHandler.Handle(command);
