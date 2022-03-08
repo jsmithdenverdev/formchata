@@ -35,18 +35,17 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Version: "2012-10-17"
           Statement:
-            - Sid: FormTableCreate
-              Effect: Allow
-              Action:
-                - dynamodb:DescribeTable
-                - dynamodb:PutItem
-                - dynamodb:UpdateItem
-              Resource:
-                - arn:aws:dynamodb:*:*:table/form
-              # Condition:
-              #   ForAllValues:StringEquals:
-              #     dynamodb:LeadingKeys:
-              #       - "${cognito-identity.amazonaws.com:sub}"
+            Effect: Allow
+            Action:
+              - dynamodb:DescribeTable
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+            Resource:
+              - arn:aws:dynamodb:*:*:table/form
+            # Condition:
+            #   ForAllValues:StringEquals:
+            #     dynamodb:LeadingKeys:
+            #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
         Create:
           Type: Api
@@ -68,13 +67,16 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Version: "2012-10-17"
           Statement:
-            - Sid: FormTableRead
-              Effect: Allow
+            - Effect: Allow
               Action:
                 - dynamodb:DescribeTable
-                - dynamodb:Query
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+              Resource:
+                - arn:aws:dynamodb:*:*:table/form/index/FormIdIndex
       Events:
         Read:
           Type: Api
@@ -96,8 +98,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Version: "2012-10-17"
           Statement:
-            - Sid: FormTableUpdate
-              Effect: Allow
+            - Effect: Allow
               Action:
                 - dynamodb:DescribeTable
                 - dynamodb:PutItem
@@ -129,8 +130,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - Version: "2012-10-17"
           Statement:
-            - Sid: FormTableModify
-              Effect: Allow
+            - Effect: Allow
               Action:
                 - dynamodb:DescribeTable
                 - dynamodb:DeleteItem
