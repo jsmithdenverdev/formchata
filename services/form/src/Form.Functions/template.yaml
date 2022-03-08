@@ -104,10 +104,10 @@ Resources:
                 - dynamodb:UpdateItem
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
-              Condition:
-                ForAllValues:StringEquals:
-                  dynamodb:LeadingKeys:
-                    - "${cognito-identity.amazonaws.com:sub}"
+              # Condition:
+              #   ForAllValues:StringEquals:
+              #     dynamodb:LeadingKeys:
+              #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
         Update:
           Type: Api
@@ -136,10 +136,10 @@ Resources:
                 - dynamodb:DeleteItem
               Resource:
                 - arn:aws:dynamodb:*:*:table/form
-              Condition:
-                ForAllValues:StringEquals:
-                  dynamodb:LeadingKeys:
-                    - "${cognito-identity.amazonaws.com:sub}"
+              # Condition:
+              #   ForAllValues:StringEquals:
+              #     dynamodb:LeadingKeys:
+              #       - "${cognito-identity.amazonaws.com:sub}"
       Events:
         Delete:
           Type: Api
