@@ -1,5 +1,8 @@
 using System.Text.Json;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
+using Form.Application.Exceptions;
 using Form.Application.Interfaces;
 using Form.Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -15,19 +18,35 @@ public class DeleteFormCommand : ICommand
 public class DeleteFormCommandHandler : ICommandHandler<DeleteFormCommand, string>
 {
     private readonly ILogger<DeleteFormCommandHandler> _logger;
-    private readonly IDynamoDBContext _context;
+    private readonly IAmazonDynamoDB _documentClient;
 
-    public DeleteFormCommandHandler(ILogger<DeleteFormCommandHandler> logger, IDynamoDBContext context)
+    public DeleteFormCommandHandler(ILogger<DeleteFormCommandHandler> logger, IAmazonDynamoDB documentClient)
     {
         _logger = logger;
-        _context = context;
+        _documentClient = documentClient;
     }
 
     public async Task<string?> Handle(DeleteFormCommand command)
     {
         _logger.LogInformation($"Handling command {JsonSerializer.Serialize(command)}");
 
-        await _context.DeleteAsync<FormMeta>(command.OwnerId, command.Id);
+        var request = new DeleteItemRequest(
+            "form",
+            new Dictionary<string, AttributeValue>
+            {
+                {"ownerId", new AttributeValue(command.OwnerId)},
+                {"formId", new AttributeValue(command.Id)}
+            })
+        {
+            ReturnValues = ReturnValue.ALL_OLD
+        };
+
+        var response = await _documentClient.DeleteItemAsync(request);
+
+        if (response.Attributes.Count == 0)
+        {
+            throw new FormMetaNotFoundException(command.Id, command.OwnerId);
+        }
 
         return command.Id;
     }
