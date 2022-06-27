@@ -1,0 +1,182 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application.
+Globals:
+  Function:
+    Environment:
+      Variables:
+        TABLE_NAME: form
+Parameters:
+  FormchataUserPoolArn:
+    Type: String
+    Description: "Arn for the Formchata Cognito User Pool"
+Resources:
+  FormApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: FormchataCognitoAuthorizer
+        Authorizers:
+          FormchataCognitoAuthorizer:
+            UserPoolArn: !Ref FormchataUserPoolArn
+  ArchiveFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/archive
+      Handler: archive
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}/archive
+            Method: POST
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  CreateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/create
+      Handler: create
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /
+            Method: POST
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  DeleteFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/delete
+      Handler: delete
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: DELETE
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  ListFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/list
+      Handler: list
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /
+            Method: GET
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  ReadFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/read
+      Handler: read
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: GET
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  UpdateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/update
+      Handler: update
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: PUT
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !GetAtt FormTable.TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+  FormTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: form
+      AttributeDefinitions:
+        - AttributeName: ownerId
+          AttributeType: S
+        - AttributeName: formId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ownerId
+          KeyType: HASH
+        - AttributeName: formId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      GlobalSecondaryIndexes:
+        - IndexName: "FormIdIndex"
+          KeySchema:
+            - AttributeName: formId
+              KeyType: HASH
+          Projection:
+            # TODO: It may not be worth projecting all attributes into the secondary index. Form metadata can become
+            # quite large. Perhaps it makes more sense to have a separate mapping table?
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+Outputs:
+  FormApiURL:
+    Description: API endpoint URL for Prod environment
+    Value: !Sub https://${FormApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
