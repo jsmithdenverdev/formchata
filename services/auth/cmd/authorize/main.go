@@ -13,6 +13,7 @@ func main() {
 
 func handler(ctx context.Context, event events.APIGatewayCustomAuthorizerRequest) events.APIGatewayCustomAuthorizerResponse {
 	return events.APIGatewayCustomAuthorizerResponse{
+		PrincipalID: "user",
 		PolicyDocument: events.APIGatewayCustomAuthorizerPolicy{
 			Version: "2012-10-17",
 			Statement: []events.IAMPolicyStatement{
