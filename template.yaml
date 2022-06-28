@@ -3,52 +3,22 @@ Transform: AWS::Serverless-2016-10-31
 Description: Formchata
 
 Resources:
-  FormchataUserPool:
-    Type: AWS::Cognito::UserPool
+  AuthorizeFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      UserPoolName: FormchataUserPool
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-      UsernameAttributes:
-        - email
-      Schema:
-        - AttributeDataType: String
-          Name: email
-          Required: false
-  FormchataUserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      UserPoolId: !Ref FormchataUserPool
-      Domain: "formchata"
-  FormchataUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref FormchataUserPool
-      ClientName: FormchataUserPoolClient
-      GenerateSecret: false
-      ExplicitAuthFlows:
-        - ALLOW_REFRESH_TOKEN_AUTH
-        # TODO: This should likely only be allowed in lower test environments
-        - ALLOW_USER_PASSWORD_AUTH
-      AllowedOAuthFlows:
-        - code
-      AllowedOAuthScopes:
-        - openid
-        - email
-      CallbackURLs:
-        - http://localhost:3006/callback/
-      SupportedIdentityProviders:
-        - COGNITO
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./services/auth/cmd/authorize
+      Handler: authorize
   FormMicroservice:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./services/form/src/Form.Functions/template.yaml
+      Location: ./services/form/template.yaml
       Parameters:
-        FormchataUserPoolArn: !GetAtt FormchataUserPool.Arn
-  ResponseMicroservice:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: ./services/response/template.yaml
-      Parameters:
-        FormchataUserPoolArn: !GetAtt FormchataUserPool.Arn
+        AuthorizerArn: !GetAtt AuthorizeFunction.Arn
+  # ResponseMicroservice:
+  #   Type: AWS::Serverless::Application
+  #   Properties:
+  #     Location: ./services/response/template.yaml
+  #     Parameters:
+  #       AuthorizerArn: !GetAtt AuthorizeFunction.Arn
