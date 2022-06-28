@@ -15,9 +15,9 @@ func (ct ControlType) String() string {
 }
 
 type Control struct {
-	ID          string
-	Title       string
-	Description string
-	Type        ControlType
-	Required    bool
+	ID          string      `json:"id" dynamodbav:"id"`
+	Title       string      `json:"title" dynamodbav:"title"`
+	Description string      `json:"description" dynamodbav:"description"`
+	Type        ControlType `json:"type" dynamodbav:"type"`
+	Required    bool        `json:"required" dynamodbav:"required"`
 }

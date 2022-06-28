@@ -46,3 +46,7 @@ func (store *FormStore) DeleteItem(ctx context.Context, id string) error {
 
 	return nil
 }
+
+func (store *FormStore) QueryItems(ctx context.Context, query struct{ OwnerID string }) ([]form.Form, error) {
+	return []form.Form{}, nil
+}

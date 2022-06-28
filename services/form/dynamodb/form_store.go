@@ -2,23 +2,33 @@ package dynamodb
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/formchata/services/form"
 	"github.com/google/uuid"
 )
 
 type FormStore struct {
 	table *string
-	db    *dynamodb.DynamoDB
+	db    *dynamodb.Client
 }
 
 func NewFormStore(table string) *FormStore {
-	sess := session.Must(session.NewSession())
-	db := dynamodb.New(sess)
+	cfg, err := config.LoadDefaultConfig(context.TODO(), func(o *config.LoadOptions) error {
+		o.Region = "us-east-1"
+		return nil
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	db := dynamodb.NewFromConfig(cfg)
 	return &FormStore{
 		table: aws.String(table),
 		db:    db,
@@ -26,14 +36,18 @@ func NewFormStore(table string) *FormStore {
 }
 
 func (store *FormStore) PutItem(ctx context.Context, form *form.Form) error {
-	form.ID = uuid.New().String()
+	if form.ID == "" {
+		form.ID = uuid.New().String()
+	}
 
-	m, err := dynamodbattribute.MarshalMap(form)
+	m, err := attributevalue.MarshalMap(form)
 	if err != nil {
 		return err
 	}
 
-	_, err = store.db.PutItem(&dynamodb.PutItemInput{
+	fmt.Printf("m %+v\n", m)
+
+	_, err = store.db.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: store.table,
 		Item:      m,
 	})
@@ -46,11 +60,11 @@ func (store *FormStore) PutItem(ctx context.Context, form *form.Form) error {
 }
 
 func (store *FormStore) GetItem(ctx context.Context, id string) (form.Form, error) {
-	result, err := store.db.GetItem(&dynamodb.GetItemInput{
+	result, err := store.db.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: store.table,
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(id),
+		Key: map[string]types.AttributeValue{
+			"id": &types.AttributeValueMemberS{
+				Value: id,
 			},
 		},
 	})
@@ -60,7 +74,7 @@ func (store *FormStore) GetItem(ctx context.Context, id string) (form.Form, erro
 	}
 
 	f := &form.Form{}
-	err = dynamodbattribute.UnmarshalMap(result.Item, &f)
+	err = attributevalue.UnmarshalMap(result.Item, &f)
 
 	if err != nil {
 		return form.Form{}, err
@@ -70,14 +84,41 @@ func (store *FormStore) GetItem(ctx context.Context, id string) (form.Form, erro
 }
 
 func (store *FormStore) DeleteItem(ctx context.Context, id string) error {
-	_, err := store.db.DeleteItem(&dynamodb.DeleteItemInput{
+	_, err := store.db.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: store.table,
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(id),
+		Key: map[string]types.AttributeValue{
+			"id": &types.AttributeValueMemberS{
+				Value: id,
 			},
 		},
 	})
 
 	return err
+}
+
+func (store *FormStore) QueryItems(ctx context.Context, query struct{ OwnerID string }) ([]form.Form, error) {
+	var forms []form.Form
+
+	results, err := store.db.Query(ctx, &dynamodb.QueryInput{
+		TableName:              store.table,
+		IndexName:              aws.String("OwnerIndex"),
+		KeyConditionExpression: aws.String("ownerId = :ownerId"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":ownerId": &types.AttributeValueMemberS{
+				Value: query.OwnerID,
+			},
+		},
+	})
+
+	if err != nil {
+		return forms, err
+	}
+
+	err = attributevalue.UnmarshalListOfMaps(results.Items, &forms)
+
+	if err != nil {
+		return []form.Form{}, err
+	}
+
+	return forms, nil
 }

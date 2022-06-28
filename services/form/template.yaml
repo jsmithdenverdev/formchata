@@ -41,7 +41,7 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   CreateFormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -62,7 +62,7 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   DeleteFormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -83,7 +83,7 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   ListFormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -104,7 +104,7 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   ReadFormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -125,7 +125,7 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   UpdateFormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -146,33 +146,35 @@ Resources:
             TableName: !Ref FormTable
       Environment:
         Variables:
-          TABLE_NAME: !Select [1, !Split ["/", !GetAtt FormTable.Arn]]
+          TABLE_NAME: !Ref FormTable
   FormTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: form
       AttributeDefinitions:
-        - AttributeName: ownerId
+        - AttributeName: id
           AttributeType: S
-        - AttributeName: formId
+        - AttributeName: ownerId
           AttributeType: S
       KeySchema:
-        - AttributeName: ownerId
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: formId
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
-        - IndexName: "FormIdIndex"
+        - IndexName: "OwnerIndex"
           KeySchema:
-            - AttributeName: formId
+            - AttributeName: ownerId
               KeyType: HASH
+            - AttributeName: id
+              KeyType: RANGE
           Projection:
-            # TODO: It may not be worth projecting all attributes into the secondary index. Form metadata can become
-            # quite large. Perhaps it makes more sense to have a separate mapping table?
-            ProjectionType: ALL
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - title
+              - description
+              - archived
           ProvisionedThroughput:
             ReadCapacityUnits: 1
             WriteCapacityUnits: 1

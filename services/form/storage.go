@@ -14,4 +14,7 @@ type Store interface {
 
 	// DeleteItem deletes a Form from the configured data store using the provided id. If an error occurs it will be returned.
 	DeleteItem(ctx context.Context, id string) error
+
+	// DeleteItem deletes a Form from the configured data store using the provided id. If an error occurs it will be returned.
+	QueryItems(ctx context.Context, query struct{ OwnerID string }) ([]Form, error)
 }
