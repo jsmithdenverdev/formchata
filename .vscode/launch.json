@@ -2,18 +2,44 @@
   "version": "0.2.0",
   "configurations": [
     {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "API form:ArchiveFormFunction",
+      "invokeTarget": {
+        "target": "api",
+        "templatePath": "${workspaceFolder}/services/form/template.yaml",
+        "logicalId": "ArchiveFormFunction"
+      },
+      "api": {
+        "path": "/",
+        "httpMethod": "get",
+        "payload": {
+          "json": {}
+        }
+      }
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "form:CreateFormFunction",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/services/form/template.yaml",
+        "logicalId": "CreateFormFunction"
+      },
+      "lambda": {
+        "payload": {},
+        "environmentVariables": {}
+      }
+    },
+    {
       "name": ".NET Core Launch (console)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      // If you have changed target frameworks, make sure to update the program path.
       "program": "${workspaceFolder}/services/form/test/Form.Functions.Tests/bin/Debug/net6.0/Form.Functions.Tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/form/test/Form.Functions.Tests",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false
     },

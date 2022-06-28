@@ -1,0 +1,184 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application.
+Globals:
+  Function:
+    Environment:
+      Variables:
+        TABLE_NAME: form
+Parameters:
+  AuthorizerArn:
+    Type: String
+    Description: "Arn for the Formchata Authorizer Lambda"
+Resources:
+  FormApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: FormchataAuthorizer
+        Authorizers:
+          FormchataAuthorizer:
+            FunctionArn: !Ref AuthorizerArn
+  ArchiveFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/archive
+      Handler: archive
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}/archive
+            Method: POST
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  CreateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/create
+      Handler: create
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /
+            Method: POST
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  DeleteFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/delete
+      Handler: delete
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: DELETE
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  ListFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/list
+      Handler: list
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /
+            Method: GET
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  ReadFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/read
+      Handler: read
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: GET
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  UpdateFormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Tracing: Active
+      CodeUri: ./cmd/update
+      Handler: update
+      Events:
+        Default:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FormApi
+            Path: /{id}
+            Method: PUT
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FormTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FormTable
+  FormTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: form
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: ownerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      GlobalSecondaryIndexes:
+        - IndexName: "OwnerIndex"
+          KeySchema:
+            - AttributeName: ownerId
+              KeyType: HASH
+            - AttributeName: id
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - title
+              - description
+              - archived
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+Outputs:
+  FormApiURL:
+    Description: API endpoint URL for Prod environment
+    Value: !Sub https://${FormApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
