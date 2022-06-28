@@ -8,9 +8,9 @@ Globals:
       Variables:
         TABLE_NAME: form-response
 Parameters:
-  FormchataUserPoolArn:
+  AuthorizerArn:
     Type: String
-    Description: 'Arn for the Formchata Cognito User Pool'
+    Description: "Arn for the Formchata Authorizer Lambda"
 Resources:
   ResponseApi:
     Type: AWS::Serverless::Api
@@ -18,10 +18,10 @@ Resources:
       StageName: Prod
       Cors: "'*'"
       Auth:
-        DefaultAuthorizer: FormchataCognitoAuthorizer
+        DefaultAuthorizer: FormchataAuthorizer
         Authorizers:
-          FormchataCognitoAuthorizer:
-            UserPoolArn: !Ref FormchataUserPoolArn
+          FormchataAuthorizer:
+            FunctionArn: !Ref AuthorizerArn
   CreateFormResponseFunction:
     Type: AWS::Serverless::Function
     Properties:
